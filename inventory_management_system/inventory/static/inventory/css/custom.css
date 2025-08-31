@@ -6,13 +6,12 @@ body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Navigation Styles */
 /* Navigation Custom Styles */
 .navigation {
   background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   padding: 0.8rem 0;
-  border-bottom: 3px solid #3498db;
+  /* border-bottom: 3px solid #3498db; */
 }
 
 .navbar-brand {
@@ -25,8 +24,8 @@ body {
 }
 
 .navbar-brand:hover {
-  color: #3498db !important;
-  transform: scale(1.05);
+  color: #0b3a59 !important;
+  /* transform: scale(1.05); */
 }
 
 .navbar-nav .nav-link {
@@ -40,14 +39,14 @@ body {
 }
 
 .navbar-nav .nav-link:not(.btn-link):hover {
-  color: #3498db !important;
+  /* color: #3498db !important; */
   background-color: rgba(52, 152, 219, 0.1);
   transform: translateY(-1px);
 }
 
 .navbar-nav .nav-link.active {
-  color: #3498db !important;
-  background-color: rgba(52, 152, 219, 0.2);
+  color: #ffffff !important;
+  background-color: rgb(3, 83, 158);
 }
 
 .navbar-nav .nav-link::after {
@@ -68,10 +67,10 @@ body {
 
 /* Welcome message styling */
 .navbar-nav .nav-link:first-child {
-  color: #3498db !important;
-  font-weight: 600;
+  color: #ffffff !important;
+  font-weight: 300;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  border-radius: 5px;
   padding: 0.5rem 1rem !important;
   margin-right: 1rem;
 }
@@ -117,7 +116,7 @@ body {
 
 /* Navbar toggler icon customization */
 .navbar-toggler {
-  border: 2px solid #3498db;
+  border: 2px solid #13547f;
   padding: 0.25rem 0.5rem;
 }
 
@@ -144,7 +143,7 @@ body {
 
 .navbar-nav .dropdown-item:hover {
   color: #3498db;
-  background-color: rgba(52, 152, 219, 0.1);
+  background-color: rgba(10, 76, 120, 0.247);
 }
 
 /* Animation for navbar */
