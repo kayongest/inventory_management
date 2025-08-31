@@ -1,0 +1,46 @@
+{% extends "inventory/base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-11 col-md-6 col-lg-4 mx-auto mt-5">
+        <div class="card shadow">
+            <div class="card-body">
+                <h1 class="card-title text-center mb-4">Login</h1>
+
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>Invalid username or password. Please try again.</strong>
+                    </div>
+                {% endif %}
+
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <!-- Username Field -->
+                    <div class="form-group mb-3">
+                        <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                        {{ form.username|add_class:"form-control"|attr:"placeholder:Enter your username" }}
+                    </div>
+                    
+                    <!-- Password Field -->
+                    <div class="form-group mb-4">
+                        <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
+                        {{ form.password|add_class:"form-control"|attr:"placeholder:Enter your password"|attr:"type:password" }}
+                    </div>
+                    
+                    <button class="btn btn-sm btn-primary w-20" type="submit">Log In</button>
+                </form>
+
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        Don't have an account? <a href="{% url 'signup' %}" class="ml-2">Sign up here</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
