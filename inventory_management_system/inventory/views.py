@@ -1,7 +1,10 @@
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, View
-from django.contrib.auth import authenticate, login, logout  # Add logout import
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.mixins import LoginRequiredMixin  # Add this import
 from .forms import UserRegisterForm
+from .models import Item, Category
+from django.views.generic import ListView
 
 # Basic homepage with - navbar, buttons for login and signup etc.
 class Index(TemplateView):
@@ -24,7 +27,28 @@ class SignUpView(View):
             return redirect('index')
         return render(request, 'inventory/signup.html', {'form': form})
 
-class LogoutView(View):
-    def post(self, request):  
-        logout(request)
-        return redirect('index')
+class DashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'inventory/dashboard.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Add dashboard statistics
+        context['total_items'] = Item.objects.count()
+        context['total_categories'] = Category.objects.count()
+        
+        # You can add more statistics here later
+        context['low_stock_items'] = 0  # Placeholder for now
+        context['out_of_stock_items'] = 0  # Placeholder for now
+        
+        return context
+    
+class ItemListView(ListView):
+    model = Item
+    template_name = 'inventory/item_list.html'
+    context_object_name = 'items'
+
+class CategoryListView(ListView):
+    model = Category
+    template_name = 'inventory/category_list.html'
+    context_object_name = 'categories'

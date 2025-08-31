@@ -3,12 +3,26 @@
 {% block content %}
 <div>
     <div class="row">
-        <div class="col-7 col-md-5 mx-auto mt-5">
-            <h1 class="fw-medium">Track & Manage Inventory</h1>
-            <h5 class="fw-light">Real-time update</h5>
+        <div class="col-11 col-md-6 mx-auto mt-5 text-center">
+            <h1 class="fw-medium mb-3">Track & Manage Inventory</h1>
+            <h5 class="fw-light mb-4">Real-time updates and comprehensive reporting</h5>
 
-            <div>
-                <a href="#" class="btn btn-sm btn-info">Get Started</a>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg me-md-2">
+                        Go to Dashboard
+                    </a>
+                    <a href="{% url 'item-list' %}" class="btn btn-outline-secondary btn-lg">
+                        View Items
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-primary btn-lg me-md-2">
+                        Login to Dashboard
+                    </a>
+                    <a href="{% url 'signup' %}" class="btn btn-outline-secondary btn-lg">
+                        Sign Up
+                    </a>
+                {% endif %}
             </div>
 
         </div>

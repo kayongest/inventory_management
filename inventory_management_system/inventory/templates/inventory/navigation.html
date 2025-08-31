@@ -20,6 +20,17 @@
         <li class="nav-item">
           <a class="nav-link active" href="{% url 'index' %}">Home</a>
         </li>
+        {% if user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'item-list' %}">Items</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'category-list' %}">Categories</a>
+        </li>
+        {% endif %}
       </ul>
 
       <ul class="navbar-nav ms-auto">
