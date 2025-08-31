@@ -5,7 +5,6 @@ from .models import Category, Item, InventoryTransaction, Supplier, UserProfile
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['name', 'description', 'created_at']
     search_fields = ['name']
-    prepopulated_fields = {'slug': ('name',)}
 
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
