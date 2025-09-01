@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Item Details - {{ item.name }}</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .item-details {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .item-details th,
+      .item-details td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      .item-details th {
+        background-color: #f2f2f2;
+      }
+      @media print {
+        .no-print {
+          display: none;
+        }
+        body {
+          margin: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Item Details</h1>
+      <p>Printed on: {% now "Y-m-d H:i" %}</p>
+    </div>
+
+    <table class="item-details">
+      <tr>
+        <th>ID</th>
+        <td>{{ item.id }}</td>
+      </tr>
+      <tr>
+        <th>Name</th>
+        <td>{{ item.name }}</td>
+      </tr>
+      <tr>
+        <th>SKU</th>
+        <td>{{ item.sku }}</td>
+      </tr>
+      <tr>
+        <th>Description</th>
+        <td>{{ item.description }}</td>
+      </tr>
+      <tr>
+        <th>Category</th>
+        <td>{{ item.category }}</td>
+      </tr>
+      <tr>
+        <th>Quantity</th>
+        <td>{{ item.quantity }}</td>
+      </tr>
+      <tr>
+        <th>Status</th>
+        <td>{{ item.get_status_display }}</td>
+      </tr>
+      <tr>
+        <th>Location</th>
+        <td>
+          {% if item.location and item.shelf %} {{ item.location }}, Shelf {{
+          item.shelf }} {% elif item.location %} {{ item.location }} {% else %}
+          Not assigned {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <th>Created Date</th>
+        <td>{{ item.created_at }}</td>
+      </tr>
+      <tr>
+        <th>Last Updated</th>
+        <td>{{ item.updated_at }}</td>
+      </tr>
+    </table>
+
+    <div class="no-print" style="margin-top: 20px">
+      <button onclick="window.print()">Print</button>
+      <button onclick="window.close()">Close</button>
+    </div>
+  </body>
+</html>
