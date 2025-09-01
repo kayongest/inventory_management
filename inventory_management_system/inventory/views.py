@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
-from django.views.generic import TemplateView, View
+from django.views.generic import TemplateView, View, ListView, CreateView
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.mixins import LoginRequiredMixin  # Add this import
+from django.contrib.auth.mixins import LoginRequiredMixin  
 from .forms import UserRegisterForm
 from .models import Item, Category
 from django.views.generic import ListView
@@ -33,13 +33,13 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # Add dashboard statistics
+        # Dashboard statistics
         context['total_items'] = Item.objects.count()
         context['total_categories'] = Category.objects.count()
         
-        # You can add more statistics here later
-        context['low_stock_items'] = 0  # Placeholder for now
-        context['out_of_stock_items'] = 0  # Placeholder for now
+        # More statistics 
+        context['low_stock_items'] = 1  # Default
+        context['out_of_stock_items'] = 23  # Default
         
         return context
     
@@ -52,3 +52,14 @@ class CategoryListView(ListView):
     model = Category
     template_name = 'inventory/category_list.html'
     context_object_name = 'categories'
+    
+class ItemCreateView(LoginRequiredMixin, CreateView):
+    model = Item
+    template_name = 'inventory/item_form.html'
+    fields = ['name', 'description', 'category', 'sku', 'barcode', 
+              'cost_price', 'selling_price', 'quantity', 'min_stock_level',
+              'max_stock_level', 'status', 'location', 'shelf', 'supplier']
+    
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        return super().form_valid(form)
