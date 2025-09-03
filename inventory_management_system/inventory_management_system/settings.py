@@ -125,5 +125,11 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-LOGIN_REDIRECT_URL = '/dashboard'
+# These are custom error handlers
+CSRF_FAILURE_VIEW = 'inventory.views.csrf_failure'
+handler403 = 'inventory.views.permission_denied_view'
+
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'

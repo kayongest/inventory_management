@@ -10,6 +10,10 @@ from .views import (
     ItemUpdateView,
     ItemDeleteView,
     print_item_detail,
+    CategoryCreateView, 
+    CategoryDeleteView, 
+    CategoryUpdateView,
+    
 )
 from django.contrib.auth import views as auth_views
 
@@ -34,5 +38,8 @@ urlpatterns = [
     path("item/<int:pk>/edit/", ItemUpdateView.as_view(), name="item-update"),
     path("item/<int:pk>/delete/", ItemDeleteView.as_view(), name="item-delete"),
     path("item/<int:pk>/print/", print_item_detail, name="print-item"),
-    path("categories/", CategoryListView.as_view(), name="category-list"),
+    path('categories/', CategoryListView.as_view(), name='category-list'),
+    path('category/new/', CategoryCreateView.as_view(), name='category-create'),
+    path('category/<int:pk>/delete/', CategoryDeleteView.as_view(), name='category-delete'),
+    path('item/<int:pk>/print/', print_item_detail, name='item-print'),
 ]

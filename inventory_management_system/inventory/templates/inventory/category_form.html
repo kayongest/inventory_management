@@ -1,0 +1,41 @@
+{% extends 'inventory/base.html' %} {% load widget_tweaks %} {% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12 col-md-6 mx-auto">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title mb-0">
+            {% if object %}Edit{% else %}Add New{% endif %} Category
+          </h3>
+        </div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+              <label for="id_name" class="form-label">Category Name</label>
+              {{ form.name|add_class:"form-control" }}
+            </div>
+
+            <div class="mb-3">
+              <label for="id_description" class="form-label">Description</label>
+              {{ form.description|add_class:"form-control"|attr:"rows:3" }}
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex">
+              <button type="submit" class="btn btn-primary me-md-2">
+                {% if object %}Update{% else %}Create{% endif %} Category
+              </button>
+              <a
+                href="{% url 'category-list' %}"
+                class="btn btn-outline-secondary"
+                >Cancel</a
+              >
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

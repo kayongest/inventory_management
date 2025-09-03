@@ -1,3 +1,5 @@
+from django.db import models
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import (
     TemplateView,
@@ -14,6 +16,16 @@ from django.db.models import Q
 from django.urls import reverse_lazy
 from .forms import UserRegisterForm
 from .models import Item, Category
+from .mixins import (
+    CanViewItemMixin,
+    CanAddItemMixin,
+    CanChangeItemMixin,
+    CanDeleteItemMixin,
+    CanViewCategoryMixin,
+    CanAddCategoryMixin,
+    CanChangeCategoryMixin,
+    CanDeleteCategoryMixin,
+)
 
 
 # Basic homepage with - navbar, buttons for login and signup etc.
@@ -45,37 +57,54 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Dashboard statistics
-        context["total_items"] = Item.objects.count()
-        context["total_categories"] = Category.objects.count()
+        # This shows item counts only if the logged in user has permission to view items
+        if self.request.user.has_perm("inventory.can_view_item"):
+            context["total_items"] = Item.objects.count()
+            context["low_stock_items"] = Item.objects.filter(
+                quantity__lte=models.F("min_stock_level")
+            ).count()
+            context["out_of_stock_items"] = Item.objects.filter(quantity=0).count()
+        else:
+            context["total_items"] = "N/A"
+            context["low_stock_items"] = "N/A"
+            context["out_of_stock_items"] = "N/A"
 
-        # More statistics
-        context["low_stock_items"] = 1  # Default
-        context["out_of_stock_items"] = 23  # Default
+        # Only show category count if user has permission to view categories
+        if self.request.user.has_perm("inventory.can_view_category"):
+            context["total_categories"] = Category.objects.count()
+        else:
+            context["total_categories"] = "N/A"
+
+        # Add permission flags to context for template logic
+        context["can_view_items"] = self.request.user.has_perm(
+            "inventory.can_view_item"
+        )
+        context["can_view_categories"] = self.request.user.has_perm(
+            "inventory.can_view_category"
+        )
+        context["can_add_items"] = self.request.user.has_perm("inventory.can_add_item")
+        context["can_add_categories"] = self.request.user.has_perm(
+            "inventory.can_add_category"
+        )
 
         return context
 
-
-class ItemListView(LoginRequiredMixin, ListView):
+# Item views
+class ItemListView(LoginRequiredMixin, CanViewItemMixin, ListView):
     model = Item
     template_name = "inventory/item_list.html"
     context_object_name = "items"
     paginate_by = 10
 
     def get_queryset(self):
+        # This will only be called if the user has permission based on the mixin
         queryset = super().get_queryset()
-
-        # Filter by status if provided
         status = self.request.GET.get("status")
         if status:
             queryset = queryset.filter(status=status)
-
-        # Filter by location if provided
         location = self.request.GET.get("location")
         if location:
             queryset = queryset.filter(location__icontains=location)
-
-        # Search by name or description if provided
         search = self.request.GET.get("search")
         if search:
             queryset = queryset.filter(
@@ -83,63 +112,33 @@ class ItemListView(LoginRequiredMixin, ListView):
                 | Q(description__icontains=search)
                 | Q(sku__icontains=search)
             )
-
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["status_choices"] = dict(Item.STATUS_CHOICES)
-
-        # Get unique locations for filter dropdown
         context["locations"] = (
             Item.objects.exclude(location="")
             .values_list("location", flat=True)
             .distinct()
         )
-
+        # Add permission flags for template
+        context["can_add_items"] = self.request.user.has_perm("inventory.can_add_item")
+        context["can_change_items"] = self.request.user.has_perm(
+            "inventory.can_change_item"
+        )
+        context["can_delete_items"] = self.request.user.has_perm(
+            "inventory.can_delete_item"
+        )
         return context
 
 
-def print_item_detail(request, pk):
-    item = get_object_or_404(Item, pk=pk)
-    return render(request, "inventory/print_item.html", {"item": item})
-
-
-# Add these views for item operations
-class ItemDetailView(LoginRequiredMixin, DetailView):
+class ItemDetailView(LoginRequiredMixin, CanViewItemMixin, DetailView):
     model = Item
     template_name = "inventory/item_detail.html"
 
 
-class ItemUpdateView(LoginRequiredMixin, UpdateView):
-    model = Item
-    template_name = "inventory/item_form.html"
-    fields = [
-        "name",
-        "description",
-        "category",
-        "sku",
-        "barcode",
-        "cost_price",
-        "selling_price",
-        "quantity",
-        "min_stock_level",
-        "max_stock_level",
-        "status",
-        "location",
-        "shelf",
-        "supplier",
-    ]
-    success_url = reverse_lazy("item-list")
-
-
-class ItemDeleteView(LoginRequiredMixin, DeleteView):
-    model = Item
-    template_name = "inventory/item_confirm_delete.html"
-    success_url = reverse_lazy("item-list")
-
-
-class ItemCreateView(LoginRequiredMixin, CreateView):
+class ItemCreateView(LoginRequiredMixin, CanAddItemMixin, CreateView):
     model = Item
     template_name = "inventory/item_form.html"
     fields = [
@@ -165,7 +164,72 @@ class ItemCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class CategoryListView(ListView):
+class ItemUpdateView(LoginRequiredMixin, CanChangeItemMixin, UpdateView):
+    model = Item
+    template_name = "inventory/item_form.html"
+    fields = [
+        "name",
+        "description",
+        "category",
+        "sku",
+        "barcode",
+        "cost_price",
+        "selling_price",
+        "quantity",
+        "min_stock_level",
+        "max_stock_level",
+        "status",
+        "location",
+        "shelf",
+        "supplier",
+    ]
+    success_url = reverse_lazy("item-list")
+
+
+class ItemDeleteView(LoginRequiredMixin, CanDeleteItemMixin, DeleteView):
+    model = Item
+    template_name = "inventory/item_confirm_delete.html"
+    success_url = reverse_lazy("item-list")
+
+
+# Category views
+class CategoryListView(LoginRequiredMixin, CanViewCategoryMixin, ListView):
     model = Category
     template_name = "inventory/category_list.html"
     context_object_name = "categories"
+
+
+class CategoryCreateView(LoginRequiredMixin, CanAddCategoryMixin, CreateView):
+    model = Category
+    template_name = "inventory/category_form.html"
+    fields = ["name", "description"]
+    success_url = reverse_lazy("category-list")
+
+
+class CategoryUpdateView(LoginRequiredMixin, CanChangeCategoryMixin, UpdateView):
+    model = Category
+    template_name = "inventory/category_form.html"
+    fields = ["name", "description"]
+    success_url = reverse_lazy("category-list")
+
+
+class CategoryDeleteView(LoginRequiredMixin, CanDeleteCategoryMixin, DeleteView):
+    model = Category
+    template_name = "inventory/category_confirm_delete.html"
+    success_url = reverse_lazy("category-list")
+
+
+def print_item_detail(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+    return render(request, "inventory/print_item.html", {"item": item})
+
+
+def permission_denied_view(request, exception=None):
+    """Custom 403 error page"""
+    return render(request, "403.html", status=403)
+
+
+def csrf_failure(request, reason=""):
+    """Custom CSRF failure page"""
+    context = {"reason": reason}
+    return render(request, "403_csrf.html", context)

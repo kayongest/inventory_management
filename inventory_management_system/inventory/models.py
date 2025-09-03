@@ -12,6 +12,12 @@ class Category(models.Model):
     class Meta:
         verbose_name_plural = "Categories"
         ordering = ['name']
+        permissions = [
+            ("can_view_category", "Can view category"),
+            ("can_add_category", "Can add category"),
+            ("can_change_category", "Can change category"),
+            ("can_delete_category", "Can delete category"),
+        ]
     
     def __str__(self):
         return self.name
@@ -63,6 +69,13 @@ class Item(models.Model):
             models.Index(fields=['sku']),
             models.Index(fields=['category']),
             models.Index(fields=['status']),
+        ]
+        
+        permissions = [
+            ("can_view_item", "Can view item"),
+            ("can_add_item", "Can add item"),
+            ("can_change_item", "Can change item"),
+            ("can_delete_item", "Can delete item"),
         ]
     
     def __str__(self):
@@ -146,3 +159,5 @@ class UserProfile(models.Model):
     
     def __str__(self):
         return f"{self.user.username} Profile"
+    
+    

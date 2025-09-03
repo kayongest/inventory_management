@@ -1,144 +1,118 @@
-{% extends 'inventory/base.html' %} {% block content %}
-<div class="container-fluid">
+{% extends 'inventory/base.html' %} {% block title %}Dashboard - Inventory
+Management System{% endblock %} {% block content %}
+<div class="container mt-4">
+  <h2>Dashboard</h2>
+
+  <!-- Display messages -->
+  {% if messages %}
+  <div class="messages">
+    {% for message in messages %}
+    <div
+      class="alert alert-{{ message.tags }} alert-dismissible fade show"
+      role="alert"
+    >
+      {{ message }}
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      ></button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   <div class="row">
+    <!-- Items Card -->
+    {% if can_view_items %}
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Total Items</h5>
+          <h3 class="card-text">{{ total_items }}</h3>
+          <a href="{% url 'item-list' %}" class="btn btn-primary btn-sm"
+            >View Items</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Low Stock</h5>
+          <h3 class="card-text text-warning">{{ low_stock_items }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Out of Stock</h5>
+          <h3 class="card-text text-danger">{{ out_of_stock_items }}</h3>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Items</h5>
+          <p class="card-text text-muted">No access to items</p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Categories Card -->
+    {% if can_view_categories %}
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Categories</h5>
+          <h3 class="card-text">{{ total_categories }}</h3>
+          <a href="{% url 'category-list' %}" class="btn btn-primary btn-sm"
+            >View Categories</a
+          >
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="col-md-6 col-lg-3 mb-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Categories</h5>
+          <p class="card-text text-muted">No access to categories</p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row mt-4">
     <div class="col-12">
-      <h1 class="mb-4">Dashboard</h1>
-
-      <!-- Statistics Cards -->
-      <div class="row">
-        <div class="col-md-3 mb-4">
-          <div class="card text-white bg-primary">
-            <div class="card-body">
-              <h5 class="card-title">Total Items</h5>
-              <h2 class="card-text">{{ total_items }}</h2>
-            </div>
-          </div>
+      <div class="card">
+        <div class="card-header">
+          <h5>Quick Actions</h5>
         </div>
-
-        <div class="col-md-3 mb-4">
-          <div class="card text-white bg-success">
-            <div class="card-body">
-              <h5 class="card-title">Categories</h5>
-              <h2 class="card-text">{{ total_categories }}</h2>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-3 mb-4">
-          <div class="card text-white bg-warning">
-            <div class="card-body">
-              <h5 class="card-title">Low Stock</h5>
-              <h2 class="card-text">{{ low_stock_items }}</h2>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-3 mb-4">
-          <div class="card text-white bg-danger">
-            <div class="card-body">
-              <h5 class="card-title">Out of Stock</h5>
-              <h2 class="card-text">{{ out_of_stock_items }}</h2>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Recent Transactions -->
-      <div class="row">
-        <div class="col-md-8">
-          <div class="card">
-            <div class="card-header">
-              <h5>Recent Transactions</h5>
-            </div>
-            <div class="card-body">
-              {% if recent_transactions %}
-              <div class="table-responsive">
-                <table class="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Item</th>
-                      <th>Type</th>
-                      <th>Quantity</th>
-                      <th>Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for transaction in recent_transactions %}
-                    <tr>
-                      <td>{{ transaction.item.name }}</td>
-                      <td>
-                        <span
-                          class="badge bg-{% if transaction.transaction_type == 'in' %}success{% elif transaction.transaction_type == 'out' %}danger{% else %}info{% endif %}"
-                        >
-                          {{ transaction.get_transaction_type_display }}
-                        </span>
-                      </td>
-                      <td>{{ transaction.quantity }}</td>
-                      <td>{{ transaction.created_at|date:"M d, Y" }}</td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-              {% else %}
-              <p class="text-muted">No recent transactions</p>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-
-        <!-- Top Categories -->
-        <div class="col-md-4">
-          <div class="card">
-            <div class="card-header">
-              <h5>Top Categories</h5>
-            </div>
-            <div class="card-body">
-              {% if top_categories %}
-              <ul class="list-group">
-                {% for category in top_categories %}
-                <li
-                  class="list-group-item d-flex justify-content-between align-items-center"
-                >
-                  {{ category.name }}
-                  <span class="badge bg-primary rounded-pill"
-                    >{{ category.item_count }}</span
-                  >
-                </li>
-                {% endfor %}
-              </ul>
-              {% else %}
-              <p class="text-muted">No categories yet</p>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Actions -->
-      <div class="row mt-4">
-        <div class="col-12">
-          <div class="card">
-            <div class="card-header">
-              <h5>Quick Actions</h5>
-            </div>
-            <div class="card-body">
-              <div class="d-grid gap-2 d-md-flex">
-                <a href="#" class="btn btn-primary me-2">
-                  <i class="bi bi-plus-circle"></i> Add New Item (Coming Soon)
-                </a>
-                <a href="#" class="btn btn-outline-secondary me-2">
-                  <i class="bi bi-list"></i> View All Items (Coming Soon)
-                </a>
-                <a href="#" class="btn btn-outline-secondary">
-                  <i class="bi bi-tags"></i> Manage Categories (Coming Soon)
-                </a>
-              </div>
-            </div>
+        <div class="card-body">
+          <div class="d-flex gap-2">
+            {% if can_add_items %}
+            <a href="{% url 'item-create' %}" class="btn btn-success">
+              <i class="fas fa-plus"></i> Add New Item
+            </a>
+            {% endif %} {% if can_add_categories %}
+            <a href="{% url 'category-create' %}" class="btn btn-success">
+              <i class="fas fa-plus"></i> Add New Category
+            </a>
+            {% endif %}
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
-{% endblock content %}
+{% endblock %}
